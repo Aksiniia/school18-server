@@ -1,0 +1,415 @@
+# * Seed request *
+#
+# Method: GET/POST
+# URL-Params: Any
+# Result-field: 0
+# Data-field: none, payload returned as Seed-field
+#
+# When sent without active phpsession cookie server will send back JSON object with two fields:
+# Result field set to "0" indicates that there is no active session and user should log-in.
+# Seed field are used to generate password hash for the Login request as:
+#  MD5(STRINGS_CONCATENATE(MD5(STRINGS_CONCATENATE("school-app", $PASSWORD)), $SEED))
+#
+# Example:
+GET http://localhost/a.php/
+Accept: application/json
+###
+# {
+#  "result": 0,
+#  "seed": "2734ce4d4357aa4f38ec4c5202c930ed"
+# }
+
+
+# * Login request *
+#
+# Method: GET
+# URL-Params: ?login=user_login&password=password_hash
+# Result-field: 1|0
+# Data-field: same as for user_info request
+#
+# This request is used to start user cookie-session, all other requests can be sent after successful Login request.
+# Result 0 is returned with invalid login and Seed is set as for the Seed request and can be used for next login request.
+#
+# Example:
+GET http://localhost/a.php?login=ksu&password=c7e3e2fe6ecd4fcd98ba1c9acc4e3a66
+Accept: application/json
+###
+# {
+#  "result": 1,
+#  "data": {
+#    "login": "ksu",
+#    "name": "Default Admin",
+#    "family": null,
+#    "avatar": null,
+#    "admin": "1",
+#    "parent": "0"
+#  }
+# }
+
+
+# * user_info *
+#
+# Method: POST
+# URL-Params: ?user_info
+# Post-JSON: none
+# Result-field: 1
+# Data-field: {"login":string,"name":string,"family":string,"avatar":string|null,"admin":1|0,"parent":1|0}
+#
+# This request is used to get current user info.
+#
+# Example:
+POST http://localhost/a.php?user_info
+Accept: application/json
+###
+# {
+#  "result": 1,
+#  "data": {
+#    "login": "ksu",
+#    "name": "Default Admin",
+#    "family": null,
+#    "avatar": null,
+#    "admin": "1",
+#    "parent": "0"
+#  }
+# }
+
+
+# * get_dump *
+#
+# Method: POST
+# URL-Params: ?get_dump
+# Post-JSON: none
+# Result-field: 1
+# Data-field: { ... }
+#
+# This request is used to get database refined entities for admin.
+#
+# Example:
+POST http://localhost/a.php?get_dump
+Accept: application/json
+###
+# {
+# ...
+# }
+
+
+# * person_delete *
+#
+# Method: POST
+# URL-Params: ?person_delete
+# Post-JSON: {"id":int}
+# Result-field: 1
+# Data-field: true|false
+#
+# This request is used to delete any person/user/pupil by id with cascade for linked entities
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?person_delete
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": 9
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * person_update *
+#
+# Method: POST
+# URL-Params: ?person_update
+# Post-JSON: {"id":int, "fields":[{"key":value} ...]}
+# Result-field: 1
+# Data-field: true|false
+#
+# This request is used to update a person. Fields field contains array of fields of the entity to update.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?person_update
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": 1,
+  "fields": [
+    { "name": "Admin" },
+    { "family": "Default" }
+  ]
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * user_update *
+#
+# Method: POST
+# URL-Params: ?user_update
+# Post-JSON: {"id":int, "fields":[{"key":value} ...]}
+# Result-field: 1
+# Data-field: true|false
+#
+# This request is used to update a user. Fields field contains array of fields of the entity to update.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?user_update
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": 1,
+  "fields": [
+    { "password": "12345678" }
+  ]
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * admin_add *
+#
+# Method: POST
+# URL-Params: ?admin_add
+# Post-JSON: {"login":string,"password":string,"name":string,"family":string|null,"avatar":string|null}
+# Result-field: 1
+# Data-field: int
+#
+# This request is used to add an admin.
+#
+# Result field is always 1 for correct request, newly created person_id is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?admin_add
+Accept: application/json
+Content-Type: application/json
+
+{
+  "login" : "admin",
+  "password": "password",
+  "name": "admin",
+  "family": null,
+  "avatar" : null
+}
+###
+# {
+#  "result": 1,
+#  "data": 9
+# }
+
+
+# * parent_add *
+#
+# Method: POST
+# URL-Params: ?parent_add
+# Post-JSON: {"login":string,"password":string,"name":string,"family":string|null,"avatar":string|null}
+# Result-field: 1
+# Data-field: int
+#
+# This request is used to add a parent.
+#
+# Result field is always 1 for correct request, newly created person_id is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?parent_add
+Accept: application/json
+Content-Type: application/json
+
+{
+  "login" : "parent",
+  "password": "password",
+  "name": "Donny",
+  "family": "Trump",
+  "avatar" : null
+}
+###
+# {
+#  "result": 1,
+#  "data": 10
+# }
+
+
+# * pupil_add *
+#
+# Method: POST
+# URL-Params: ?pupil_add
+# Post-JSON: {"class":int,"name":string,"family":string|null,"avatar":string|null}
+# Result-field: 1
+# Data-field: int
+#
+# This request is used to add a pupil.
+#
+# Result field is always 1 for correct request, newly created pupil_id is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?pupil_add
+Accept: application/json
+Content-Type: application/json
+
+{
+  "class" : 1,
+  "name": "Jim",
+  "family": "Jones",
+  "avatar" : null
+}
+###
+# {
+#  "result": 1,
+#  "data": 11
+# }
+
+
+# * pupil_bind *
+#
+# Method: POST
+# URL-Params: ?pupil_bind
+# Post-JSON: {"id":int,"parent":int}
+# Result-field: 1
+# Data-field: bool
+#
+# This request is used to bind a pupil to a parent.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?pupil_bind
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id" : 2,
+  "parent": 3
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * pupil_unbind *
+#
+# Method: POST
+# URL-Params: ?pupil_unbind
+# Post-JSON: {"id":int,"parent":int}
+# Result-field: 1
+# Data-field: bool
+#
+# This request is used to unbind a pupil from a parent.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?pupil_unbind
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id" : 1,
+  "parent": 2
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * class_delete *
+#
+# Method: POST
+# URL-Params: ?class_delete
+# Post-JSON: {"id":int}
+# Result-field: 1
+# Data-field: true|false
+#
+# This request is used to delete a class.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?class_delete
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id" : 2
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * class_update *
+#
+# Method: POST
+# URL-Params: ?class_update
+# Post-JSON: {"id":int, "fields":[{"key":value} ...]}
+# Result-field: 1
+# Data-field: true|false
+#
+# This request is used to update a class. Fields field contains array of fields of the entity to update.
+#
+# Result field is always 1 for correct request, the result of the operation is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?class_update
+Accept: application/json
+Content-Type: application/json
+
+{
+  "id": 1,
+  "fields": [
+    { "year": 3 },
+    { "letter": "Я" }
+  ]
+}
+###
+# {
+#  "result": 1,
+#  "data": true
+# }
+
+
+# * class_add *
+#
+# Method: POST
+# URL-Params: ?class_add
+# Post-JSON: {"login":string,"password":string,"name":string,"family":string|null,"avatar":string|null}
+# Result-field: 1
+# Data-field: int
+#
+# This request is used to add a class.
+#
+# Result field is always 1 for correct request, newly created class_id is passed through the Data field.
+#
+# Example:
+POST http://localhost/a.php?class_add
+Accept: application/json
+Content-Type: application/json
+
+{
+  "year" : 8,
+  "letter": "А"
+}
+###
+# {
+#  "result": 1,
+#  "data": 2
+# }
