@@ -185,16 +185,16 @@ function get_dump(): ?array
     global $CON;
     return array(
         'admins' =>
-            ($q = $CON->query("SELECT u.login, p.name, p.family, p.avatar FROM person p INNER JOIN `user` u ON u.person_id = p.id INNER JOIN admin a ON a.user_person_id = p.id;"))
+            ($q = $CON->query("SELECT p.id, u.login, p.name, p.family, p.avatar FROM person p INNER JOIN `user` u ON u.person_id = p.id INNER JOIN admin a ON a.user_person_id = p.id;"))
                 ? $q->fetch_all(MYSQLI_ASSOC) : NULL,
         'parents' =>
-            ($q = $CON->query("SELECT u.login, p.name, p.family, p.avatar FROM person p INNER JOIN `user` u ON u.person_id = p.id INNER JOIN parent a ON a.user_person_id = p.id;"))
+            ($q = $CON->query("SELECT p.id, u.login, p.name, p.family, p.avatar FROM person p INNER JOIN `user` u ON u.person_id = p.id INNER JOIN parent a ON a.user_person_id = p.id;"))
                 ? $q->fetch_all(MYSQLI_ASSOC) : NULL,
         'classes' =>
             ($q = $CON->query("SELECT `id`, `year`, `letter` FROM `class`;"))
                 ? $q->fetch_all(MYSQLI_ASSOC) : NULL,
         'pupils' =>
-            ($q = $CON->query("SELECT pp.class_id class, p.name, p.family, p.avatar FROM person p INNER JOIN `pupil` pp ON pp.person_id = p.id;"))
+            ($q = $CON->query("SELECT p.id, pp.class_id class, p.name, p.family, p.avatar FROM person p INNER JOIN `pupil` pp ON pp.person_id = p.id;"))
                 ? $q->fetch_all(MYSQLI_ASSOC) : NULL,
         'duties' =>
             ($q = $CON->query("SELECT `id`, `date`, `class_id` FROM `duty`;"))
